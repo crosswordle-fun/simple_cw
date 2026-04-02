@@ -14,7 +14,12 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        toolchain = fenix.packages.${system}.stable.minimalToolchain;
+        fenixPkgs = fenix.packages.${system};
+        toolchain = fenixPkgs.combine [
+          fenixPkgs.stable.minimalToolchain
+          fenixPkgs.stable.rust-src
+          fenixPkgs.stable.rustfmt
+        ];
         nativeLibraries = with pkgs; [
           alsa-lib
           libGL
@@ -25,10 +30,11 @@
         devShells.default = pkgs.mkShell {
           shellHook = ''
             export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath nativeLibraries}"
+            export RUST_SRC_PATH="${toolchain}/lib/rustlib/src/rust/library"
           '';
           packages = [
             toolchain
-            fenix.packages.${system}.stable.rust-analyzer
+            fenixPkgs.stable.rust-analyzer
             pkgs.pkg-config
           ] ++ nativeLibraries;
         };
