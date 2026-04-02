@@ -39,6 +39,9 @@ pub fn handle_wordle_input(wordle_input: &mut WordleInput, wordle_level: &mut Wo
                 new_attempt.word = guess;
                 new_attempt.progress = wordle_progress(guess, solution);
                 wordle_level.attempts[i] = new_attempt;
+
+                wordle_input.input = [0; 5];
+                wordle_input.cursor = 0;
                 break;
             }
         }
