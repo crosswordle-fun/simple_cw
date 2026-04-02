@@ -4,6 +4,7 @@ use crate::config::WORD_LIST;
 pub struct WordleInput {
     pub input: [u8; 5],
     pub cursor: u8,
+    pub tile_animations: [InputTileAnimation; 5],
 }
 
 #[derive(Debug, Default)]
@@ -52,6 +53,21 @@ pub enum AttemptAnimationPhase {
     Translate,
     Flip,
     Settle,
+}
+
+#[derive(Debug, Default, Clone, Copy)]
+pub struct InputTileAnimation {
+    pub remaining: f32,
+    pub letter: u8,
+    pub kind: InputTileAnimationKind,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum InputTileAnimationKind {
+    #[default]
+    None,
+    Insert,
+    Remove,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]

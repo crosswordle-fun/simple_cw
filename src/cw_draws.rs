@@ -1,9 +1,12 @@
 use crate::{
     config::{
-        A_IN_U8, WORDLE_FLIP_DURATION, WORDLE_FLIP_STAGGER, WORDLE_SETTLE_DURATION,
-        WORDLE_TRANSLATE_DURATION,
+        A_IN_U8, WORDLE_FLIP_DURATION, WORDLE_FLIP_STAGGER, WORDLE_INPUT_CLICK_DURATION,
+        WORDLE_SETTLE_DURATION, WORDLE_TRANSLATE_DURATION,
     },
-    cw_types::{AttemptAnimation, AttemptAnimationPhase, Progress, WordleInput, WordleLevel},
+    cw_types::{
+        AttemptAnimation, AttemptAnimationPhase, InputTileAnimationKind, Progress, WordleInput,
+        WordleLevel,
+    },
     helpers::draw_rounded_rect,
 };
 use macroquad::prelude::*;
@@ -16,6 +19,7 @@ const ATTEMPT_ROW_GAP_FACTOR: f32 = 0.1;
 const FACE_LIFT_IN_PADDING: f32 = 2.;
 const FACE_LIFT_RATIO: f32 = FACE_LIFT_IN_PADDING * (PADDING_PERCENT / (100. - PADDING_PERCENT));
 const SETTLE_DROP_IN_TILE: f32 = 0.3;
+const INPUT_CLICK_DEPTH_IN_TILE: f32 = 0.12;
 
 pub enum Shape {
     Rectangle(Rect, Color),
@@ -154,12 +158,31 @@ fn push_scaled_rect(
     ));
 }
 
+fn with_alpha(color: Color, alpha: f32) -> Color {
+    Color {
+        a: color.a * alpha,
+        ..color
+    }
+}
+
 fn push_tile(
     z_layer: &mut Vec<Vec<Shape>>,
     pose: TilePose,
     colors: (Color, Color, Color),
     letter: char,
     scale_y: f32,
+) {
+    push_tile_alpha(z_layer, pose, colors, letter, scale_y, 1., 0.);
+}
+
+fn push_tile_alpha(
+    z_layer: &mut Vec<Vec<Shape>>,
+    pose: TilePose,
+    colors: (Color, Color, Color),
+    letter: char,
+    scale_y: f32,
+    alpha: f32,
+    face_offset_y: f32,
 ) {
     let lift = pose.tile_size * FACE_LIFT_RATIO;
     let base_rect = Rect {
@@ -170,13 +193,13 @@ fn push_tile(
     };
     let face_rect = Rect {
         x: pose.x,
-        y: pose.face_y,
+        y: pose.face_y + face_offset_y,
         w: pose.tile_size,
         h: pose.tile_size,
     };
 
-    push_scaled_rect(z_layer, 2, base_rect, colors.0, scale_y);
-    push_scaled_rect(z_layer, 3, face_rect, colors.1, scale_y);
+    push_scaled_rect(z_layer, 2, base_rect, with_alpha(colors.0, alpha), scale_y);
+    push_scaled_rect(z_layer, 3, face_rect, with_alpha(colors.1, alpha), scale_y);
 
     if scale_y < 0.2 {
         return;
@@ -185,10 +208,10 @@ fn push_tile(
     let scaled_h = pose.tile_size * scale_y;
     z_layer[4].push(Shape::Letter {
         x: pose.x + pose.tile_size * 0.25,
-        y: pose.face_y + (pose.tile_size - scaled_h) / 2. + scaled_h * 0.75,
+        y: pose.face_y + face_offset_y + (pose.tile_size - scaled_h) / 2. + scaled_h * 0.75,
         font_size: scaled_h,
         letter,
-        color: colors.2,
+        color: with_alpha(colors.2, alpha),
     });
 }
 
@@ -241,17 +264,50 @@ pub fn build_wordle_input_bar(z_layer: &mut Vec<Vec<Shape>>) {
 }
 
 pub fn build_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &WordleInput) {
-    for (i, letter_u8) in wordle_input.input.iter().enumerate() {
-        if !(*letter_u8 >= A_IN_U8) {
+    for i in 0..wordle_input.input.len() {
+        let animation = wordle_input.tile_animations[i];
+        let letter_u8 = wordle_input.input[i];
+        let animated_letter = if letter_u8 >= A_IN_U8 {
+            Some(letter_u8)
+        } else if animation.kind == InputTileAnimationKind::Remove && animation.letter >= A_IN_U8 {
+            Some(animation.letter)
+        } else {
+            None
+        };
+
+        let Some(letter_u8) = animated_letter else {
             continue;
+        };
+
+        let pose = input_tile_pose(i);
+        let mut alpha = 1.;
+        let mut face_offset_y = 0.;
+
+        if animation.remaining > 0. {
+            let t = 1. - (animation.remaining / WORDLE_INPUT_CLICK_DURATION).clamp(0., 1.);
+            let pulse = if t < 0.5 {
+                ease_out_cubic(t * 2.)
+            } else {
+                1. - ease_out_cubic((t - 0.5) * 2.)
+            };
+
+            if animation.kind == InputTileAnimationKind::Insert {
+                face_offset_y = pose.tile_size * INPUT_CLICK_DEPTH_IN_TILE * pulse;
+            }
+
+            if animation.kind == InputTileAnimationKind::Remove {
+                alpha = 1. - t;
+            }
         }
 
-        push_tile(
+        push_tile_alpha(
             z_layer,
-            input_tile_pose(i),
+            pose,
             (BROWN, BEIGE, DARKBROWN),
-            *letter_u8 as char,
+            letter_u8 as char,
             1.,
+            alpha,
+            face_offset_y,
         );
     }
 }
