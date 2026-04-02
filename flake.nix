@@ -15,12 +15,22 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         toolchain = fenix.packages.${system}.stable.minimalToolchain;
+        nativeLibraries = with pkgs; [
+          alsa-lib
+          libGL
+          libxkbcommon
+          wayland
+        ];
       in {
         devShells.default = pkgs.mkShell {
+          shellHook = ''
+            export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath nativeLibraries}"
+          '';
           packages = [
             toolchain
             fenix.packages.${system}.stable.rust-analyzer
-          ];
+            pkgs.pkg-config
+          ] ++ nativeLibraries;
         };
       });
 }
