@@ -1,10 +1,12 @@
 pub mod config;
 pub mod cw_draws;
+pub mod cw_inputs;
 pub mod cw_types;
 pub mod helpers;
 
 use crate::{
     cw_draws::{build_wordle_input_bar, build_wordle_input_tiles, draw_all_shapes},
+    cw_inputs::handle_wordle_input,
     cw_types::WordleInput,
     helpers::create_z_layer_vector,
 };
@@ -25,8 +27,8 @@ fn window_conf() -> Conf {
 async fn main() {
     // set_default_filter_mode(FilterMode::Nearest);
 
-    let wordle_input = WordleInput {
-        input: [65, 66, 67, 68, 69],
+    let mut wordle_input = WordleInput {
+        input: [0; 5],
         cursor: 0,
     };
 
@@ -34,6 +36,7 @@ async fn main() {
         clear_background(BLACK);
         let mut z_layers = create_z_layer_vector();
 
+        handle_wordle_input(&mut wordle_input);
         build_wordle_input_bar(&mut z_layers);
         build_wordle_input_tiles(&mut z_layers, &wordle_input);
 
