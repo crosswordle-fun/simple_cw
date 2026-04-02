@@ -4,8 +4,7 @@ pub mod cw_types;
 pub mod helpers;
 
 use crate::{
-    cw_draws::{Shape, draw_wordle_input, wordle_input_single_rec},
-    cw_types::WordleInput,
+    cw_draws::{Shape, draw_wordle_input},
     helpers::create_z_layer_vector,
 };
 use macroquad::prelude::*;

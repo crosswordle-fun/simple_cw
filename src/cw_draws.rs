@@ -1,22 +1,7 @@
-use crate::cw_types::WordleInput;
 use macroquad::prelude::*;
 
 pub enum Shape {
     Rectangle(Rect, Color),
-}
-
-pub fn wordle_input_single_rec(z_layer: &mut Vec<Vec<Shape>>, wi: &WordleInput) {
-    let grid_factor = 10.;
-    let grid_size_x = screen_width() / grid_factor;
-    let grid_size_y = screen_height() / grid_factor;
-
-    let x = grid_size_x * 1.;
-    let y = grid_size_y * 9.;
-    let w = grid_size_x * 8.;
-    let h = grid_size_y * 1.;
-    let base = Shape::Rectangle(Rect { x, y, w, h }, DARKGRAY);
-
-    z_layer[0].push(base);
 }
 
 pub fn draw_wordle_input(z_layer: &mut Vec<Vec<Shape>>) {
