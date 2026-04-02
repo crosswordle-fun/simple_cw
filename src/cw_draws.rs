@@ -281,7 +281,7 @@ pub fn build_wordle_attempt_animation(
     for col in 0..5 {
         let start_pose = input_tile_pose(col);
         let target_pose = attempt_tile_pose(attempt_animation.target_row, col);
-        let hover_face_y = target_pose.face_y - settle_drop(target_pose.tile_size);
+        let hover_face_y = target_pose.face_y + settle_drop(target_pose.tile_size);
 
         let (pose, colors, scale_y) = match attempt_animation.phase {
             AttemptAnimationPhase::Translate => {
