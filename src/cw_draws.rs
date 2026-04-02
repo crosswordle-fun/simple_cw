@@ -1,4 +1,4 @@
-use crate::{config::A_IN_U8, cw_types::WordleInput};
+use crate::{config::A_IN_U8, cw_types::WordleInput, helpers::draw_rounded_rect};
 use macroquad::prelude::*;
 
 pub const GRID_FACTOR: f32 = 11.;
@@ -13,6 +13,27 @@ pub enum Shape {
         letter: char,
         color: Color,
     },
+}
+
+pub fn draw_all_shapes(z_layers: &Vec<Vec<Shape>>) {
+    for z in z_layers {
+        for shape in z {
+            match *shape {
+                Shape::Rectangle(Rect { x, y, w, h }, color) => {
+                    draw_rounded_rect(x, y, w, h, 5., color);
+                }
+                Shape::Letter {
+                    x,
+                    y,
+                    font_size,
+                    letter,
+                    color,
+                } => {
+                    draw_text(letter.to_string().as_str(), x, y, font_size, color);
+                }
+            }
+        }
+    }
 }
 
 pub struct Grid {
@@ -33,7 +54,7 @@ fn get_grid() -> Grid {
     }
 }
 
-pub fn draw_wordle_input_bar(z_layer: &mut Vec<Vec<Shape>>) {
+pub fn build_wordle_input_bar(z_layer: &mut Vec<Vec<Shape>>) {
     let Grid {
         full_size,
         tile_size,
@@ -61,11 +82,11 @@ pub fn draw_wordle_input_bar(z_layer: &mut Vec<Vec<Shape>>) {
     }
 }
 
-pub fn draw_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &WordleInput) {
+pub fn build_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &WordleInput) {
     let Grid {
-        full_size,
         tile_size,
         tile_padding,
+        ..
     } = get_grid();
 
     let x_total = 5. * tile_size + 4. * tile_padding;
