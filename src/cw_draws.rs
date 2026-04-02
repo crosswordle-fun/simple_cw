@@ -77,9 +77,9 @@ fn get_attempt_grid() -> Grid {
 
 fn progress_colors(progress: Progress) -> (Color, Color, Color) {
     match progress {
-        Progress::Correct => (DARKGREEN, GREEN, DARKBROWN),
-        Progress::Present => (GOLD, YELLOW, DARKBROWN),
-        Progress::Absent | Progress::Empty => (DARKGRAY, GRAY, WHITE),
+        Progress::Correct => (DARKGREEN, GREEN, BLACK),
+        Progress::Present => (GOLD, YELLOW, BLACK),
+        Progress::Absent | Progress::Empty => (GRAY, LIGHTGRAY, BLACK),
     }
 }
 
