@@ -2,7 +2,7 @@ use crate::cw_types::WordleInput;
 use macroquad::prelude::*;
 
 pub const GRID_FACTOR: f32 = 11.;
-pub const PADDING_PERCENT: f32 = 5.;
+pub const PADDING_PERCENT: f32 = 10.;
 
 pub enum Shape {
     Rectangle(Rect, Color),
@@ -40,7 +40,7 @@ pub fn draw_wordle_input_bar(z_layer: &mut Vec<Vec<Shape>>) {
     let y = screen_height() - full_size - tile_padding;
     let w = x_total + tile_padding * 2.;
     let h = full_size + tile_padding;
-    let base = Shape::Rectangle(Rect { x, y, w, h }, WHITE);
+    let base = Shape::Rectangle(Rect { x, y, w, h }, DARKBROWN);
     z_layer[0].push(base);
 
     for i in 0..5 {
@@ -54,4 +54,27 @@ pub fn draw_wordle_input_bar(z_layer: &mut Vec<Vec<Shape>>) {
     }
 }
 
-pub fn draw_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &WordleInput) {}
+pub fn draw_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &WordleInput) {
+    let Grid {
+        full_size,
+        tile_size,
+        tile_padding,
+    } = get_grid();
+
+    let x_total = 5. * tile_size + 4. * tile_padding;
+    let x_rem = screen_width() - x_total;
+
+    for i in 0..5 {
+        let x = i as f32 * (tile_size + tile_padding) + x_rem / 2.;
+        let y = screen_height() - tile_size - tile_padding;
+        let w = tile_size;
+        let h = tile_size;
+
+        let tile = Shape::Rectangle(Rect { x, y, w, h }, BROWN);
+        z_layer[2].push(tile);
+
+        let y = screen_height() - tile_size - tile_padding * 3.;
+        let tile = Shape::Rectangle(Rect { x, y, w, h }, BEIGE);
+        z_layer[2].push(tile);
+    }
+}
