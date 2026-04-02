@@ -1,4 +1,4 @@
-use crate::{config::Z_LAYERS, cw_draws::Shape};
+use crate::{config::Z_LAYERS, cw_draws::Shape, cw_types::Progress};
 use macroquad::prelude::*;
 
 pub fn create_z_layer_vector() -> Vec<Vec<Shape>> {
@@ -23,4 +23,34 @@ pub fn draw_rounded_rect(x: f32, y: f32, w: f32, h: f32, r: f32, color: Color) {
     draw_circle(x + w - r, y + r, r, color);
     draw_circle(x + r, y + h - r, r, color);
     draw_circle(x + w - r, y + h - r, r, color);
+}
+
+pub fn wordle_progress(guess: [u8; 5], solution: [u8; 5]) -> [Progress; 5] {
+    let mut result = [Progress::Absent; 5];
+    let mut used = [false; 5];
+
+    // First pass: exact matches
+    for i in 0..5 {
+        if guess[i] == solution[i] {
+            result[i] = Progress::Correct;
+            used[i] = true;
+        }
+    }
+
+    // Second pass: present elsewhere
+    for i in 0..5 {
+        if result[i] == Progress::Correct {
+            continue;
+        }
+
+        for j in 0..5 {
+            if !used[j] && guess[i] == solution[j] {
+                result[i] = Progress::Present;
+                used[j] = true;
+                break;
+            }
+        }
+    }
+
+    result
 }
