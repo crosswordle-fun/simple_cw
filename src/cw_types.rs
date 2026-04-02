@@ -10,6 +10,7 @@ pub struct WordleInput {
 pub struct WordleGame {
     pub curr_level: WordleLevel,
     pub prev_levels: Vec<WordleLevel>,
+    pub active_animation: Option<AttemptAnimation>,
 }
 
 #[derive(Debug, Default)]
@@ -35,6 +36,22 @@ pub fn new_wordle_level(word_idx: usize) -> WordleLevel {
 pub struct Attempt {
     pub word: [u8; 5],
     pub progress: [Progress; 5],
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct AttemptAnimation {
+    pub guess: [u8; 5],
+    pub progress: [Progress; 5],
+    pub target_row: usize,
+    pub phase: AttemptAnimationPhase,
+    pub phase_elapsed: f32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AttemptAnimationPhase {
+    Translate,
+    Flip,
+    Settle,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
