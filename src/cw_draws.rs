@@ -280,23 +280,22 @@ pub fn build_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &Wo
         };
 
         let pose = input_tile_pose(i);
-        let mut alpha = 1.;
         let mut face_offset_y = 0.;
 
         if animation.remaining > 0. {
             let t = 1. - (animation.remaining / WORDLE_INPUT_CLICK_DURATION).clamp(0., 1.);
-            let pulse = if t < 0.5 {
-                ease_out_cubic(t * 2.)
-            } else {
-                1. - ease_out_cubic((t - 0.5) * 2.)
-            };
 
             if animation.kind == InputTileAnimationKind::Insert {
+                let pulse = if t < 0.5 {
+                    ease_out_cubic(t * 2.)
+                } else {
+                    1. - ease_out_cubic((t - 0.5) * 2.)
+                };
                 face_offset_y = pose.tile_size * INPUT_CLICK_DEPTH_IN_TILE * pulse;
             }
 
             if animation.kind == InputTileAnimationKind::Remove {
-                alpha = 1. - t;
+                face_offset_y = pose.tile_size * INPUT_CLICK_DEPTH_IN_TILE * ease_out_cubic(t);
             }
         }
 
@@ -306,7 +305,7 @@ pub fn build_wordle_input_tiles(z_layer: &mut Vec<Vec<Shape>>, wordle_input: &Wo
             (BROWN, BEIGE, DARKBROWN),
             letter_u8 as char,
             1.,
-            alpha,
+            1.,
             face_offset_y,
         );
     }
