@@ -4,7 +4,7 @@ pub mod cw_types;
 pub mod helpers;
 
 use crate::{
-    cw_draws::{Shape, draw_wordle_input},
+    cw_draws::{Shape, draw_wordle_input_bar},
     helpers::create_z_layer_vector,
 };
 use macroquad::prelude::*;
@@ -25,7 +25,7 @@ async fn main() {
     loop {
         clear_background(BLACK);
         let mut z_layers = create_z_layer_vector();
-        draw_wordle_input(&mut z_layers);
+        draw_wordle_input_bar(&mut z_layers);
 
         for z in &z_layers {
             for shape in z {
