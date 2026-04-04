@@ -4,8 +4,9 @@ pub mod cw_inputs;
 pub mod cw_types;
 pub mod helpers;
 pub mod tile;
+pub mod tile_input;
 
-use crate::tile::Tile;
+use crate::{tile::Tile, tile_input::TileInput};
 use macroquad::prelude::*;
 
 fn window_conf() -> Conf {
@@ -26,25 +27,19 @@ fn window_conf() -> Conf {
 async fn main() {
     set_default_filter_mode(FilterMode::Nearest);
 
-    let num_tiles_in_row = 11;
-    let grid_size = screen_width() / num_tiles_in_row as f32;
-    let start_idx = num_tiles_in_row / 2 - 2;
-    let end_idx = num_tiles_in_row / 2 + 3;
-
-    let mut tiles = Vec::new();
-    for i in start_idx..end_idx {
-        let pos = Vec2::new(i as f32, 4.);
-        tiles.push(Tile::new_input_tile(
-            pos, grid_size, LIGHTGRAY, DARKGRAY, WHITE,
-        ));
-    }
-
+    let mut new_wordle_input = TileInput::new();
     loop {
         clear_background(BLACK);
 
-        for t in &tiles {
-            t.render();
+        new_wordle_input.handle_letter_add();
+        new_wordle_input.handle_letter_delete();
+        for tile in &new_wordle_input.tiles {
+            match tile.letter {
+                Some(_) => tile.render(),
+                None => {}
+            }
         }
+
         draw_fps();
         next_frame().await;
     }
