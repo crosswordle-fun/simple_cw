@@ -3,10 +3,11 @@ pub mod cw_draws;
 pub mod cw_inputs;
 pub mod cw_types;
 pub mod helpers;
+pub mod input_board;
 pub mod tile;
 pub mod tile_input;
 
-use crate::tile_input::WordleMode;
+use crate::{input_board::WordleInputBoard, tile_input::WordleMode};
 use macroquad::prelude::*;
 
 fn window_conf() -> Conf {
@@ -28,6 +29,7 @@ async fn main() {
     set_default_filter_mode(FilterMode::Nearest);
 
     let mut wordle_mode = WordleMode::new();
+    let board = WordleInputBoard::new();
     loop {
         clear_background(BLACK);
 
@@ -36,6 +38,8 @@ async fn main() {
         wordle_mode.handle_wordle_submit();
 
         wordle_mode.render_attempts();
+
+        board.render();
         wordle_mode.render_inputs();
 
         draw_fps();

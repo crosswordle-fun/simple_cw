@@ -114,7 +114,7 @@ impl WordleMode {
         let grid_size = screen_width() / num_tiles_in_row as f32;
         let start_idx = num_tiles_in_row / 2 - 2;
         let end_idx = num_tiles_in_row / 2 + 3;
-        let border_c = WHITE;
+        let border_c = BLACK;
 
         let mut tiles = Vec::new();
         for i in start_idx..end_idx {
@@ -141,7 +141,7 @@ impl WordleMode {
         let start_idx = num_tiles_in_row / 2 - 2;
         let border_size = 2.;
         let size = screen_width() / num_tiles_in_row as f32;
-        let border_c = WHITE;
+        let border_c = BLACK;
 
         for (i, (l, p)) in attempt.iter().zip(progress.iter()).enumerate() {
             let pos = Vec2 {
@@ -161,8 +161,8 @@ impl WordleMode {
 
     fn get_tile_colors_from_progress(progress: &Progress) -> (Color, Color) {
         match progress {
-            Progress::Empty => (WHITE, BLACK),
-            Progress::Absent => (LIGHTGRAY, DARKGRAY),
+            Progress::Empty => (WHITE, LIGHTGRAY),
+            Progress::Absent => (LIGHTGRAY, GRAY),
             Progress::Present => (YELLOW, GOLD),
             Progress::Correct => (GREEN, DARKGREEN),
         }

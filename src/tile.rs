@@ -1,5 +1,5 @@
 use macroquad::{
-    color::Color,
+    color::{BLACK, Color},
     math::{Rect, Vec2},
     shapes::{draw_rectangle, draw_rectangle_lines},
     text::draw_text,
@@ -67,7 +67,8 @@ impl Tile {
                 x + self.face_rect.w * 0.25,
                 y + self.face_rect.w * 0.75,
                 self.face_rect.w,
-                self.base_c,
+                // self.base_c,
+                BLACK,
             );
         }
     }
