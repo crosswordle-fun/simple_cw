@@ -6,7 +6,7 @@ pub mod helpers;
 pub mod tile;
 pub mod tile_input;
 
-use crate::tile_input::TileInput;
+use crate::tile_input::WordleMode;
 use macroquad::prelude::*;
 
 fn window_conf() -> Conf {
@@ -27,14 +27,15 @@ fn window_conf() -> Conf {
 async fn main() {
     set_default_filter_mode(FilterMode::Nearest);
 
-    let mut wordle_input = TileInput::new();
+    let mut wordle_mode = WordleMode::new();
     loop {
         clear_background(BLACK);
 
-        wordle_input.handle_letter_add();
-        wordle_input.handle_letter_delete();
+        wordle_mode.handle_letter_add();
+        wordle_mode.handle_letter_delete();
+        wordle_mode.handle_wordle_submit();
 
-        wordle_input.render();
+        wordle_mode.render_inputs();
 
         draw_fps();
         next_frame().await;

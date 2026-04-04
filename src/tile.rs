@@ -5,7 +5,7 @@ use macroquad::{
     text::draw_text,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Tile {
     pub pos: Vec2,
     pub face_rect: Rect,
