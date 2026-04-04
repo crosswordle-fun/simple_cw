@@ -35,6 +35,7 @@ async fn main() {
         wordle_mode.handle_letter_delete();
         wordle_mode.handle_wordle_submit();
 
+        wordle_mode.render_attempts();
         wordle_mode.render_inputs();
 
         draw_fps();

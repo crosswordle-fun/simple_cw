@@ -8,6 +8,7 @@ pub struct WordleMode {
 
     pub curr_level: WordleLevel,
     pub prev_levels: Vec<WordleLevel>,
+    pub attempt_tiles: Vec<Tile>,
 }
 
 #[derive(Debug, Default)]
@@ -19,31 +20,15 @@ pub struct WordleLevel {
 
 impl WordleMode {
     pub fn new() -> Self {
-        let num_tiles_in_row = 11;
-        let border_size = 2.;
-        let grid_size = screen_width() / num_tiles_in_row as f32;
-        let start_idx = num_tiles_in_row / 2 - 2;
-        let end_idx = num_tiles_in_row / 2 + 3;
-
-        let mut tiles = Vec::new();
-        for i in start_idx..end_idx {
-            let pos = Vec2::new(i as f32, 4.);
-            tiles.push(Tile::new_input_tile(
-                pos,
-                grid_size,
-                border_size,
-                LIGHTGRAY,
-                DARKGRAY,
-                WHITE,
-                None,
-            ));
-        }
+        let input_tiles = Self::build_input_tiles();
+        let curr_level = new_wordle_level(0);
 
         Self {
-            input_tiles: tiles,
+            input_tiles,
             cursor: 0,
-            curr_level: new_wordle_level(0),
+            curr_level,
             prev_levels: Vec::new(),
+            attempt_tiles: Vec::new(),
         }
     }
 
@@ -79,6 +64,8 @@ impl WordleMode {
             let attempt = self.get_complete_attempt_from_input();
             let progress = wordle_progress(attempt, self.curr_level.solution);
 
+            let mut attempt_tiles = self.build_attempt_tiles(&attempt, &progress);
+            self.attempt_tiles.append(&mut attempt_tiles);
             self.curr_level.attempts.push(attempt);
             self.curr_level.progress.push(progress);
             self.reset_input();
@@ -112,6 +99,72 @@ impl WordleMode {
                 Some(_) => tile.render(),
                 None => {}
             }
+        }
+    }
+
+    pub fn render_attempts(&self) {
+        for tile in &self.attempt_tiles {
+            tile.render();
+        }
+    }
+
+    fn build_input_tiles() -> Vec<Tile> {
+        let num_tiles_in_row = 11;
+        let border_size = 2.;
+        let grid_size = screen_width() / num_tiles_in_row as f32;
+        let start_idx = num_tiles_in_row / 2 - 2;
+        let end_idx = num_tiles_in_row / 2 + 3;
+        let border_c = WHITE;
+
+        let mut tiles = Vec::new();
+        for i in start_idx..end_idx {
+            let pos = Vec2::new(i as f32, 4.);
+            let (face_c, base_c) = Self::get_tile_colors_from_progress(&Progress::Empty);
+            tiles.push(Tile::new_input_tile(
+                pos,
+                grid_size,
+                border_size,
+                face_c,
+                base_c,
+                border_c,
+                None,
+            ));
+        }
+
+        tiles
+    }
+
+    fn build_attempt_tiles(&self, attempt: &[char; 5], progress: &[Progress; 5]) -> Vec<Tile> {
+        let mut attempt_tiles = Vec::new();
+        let attempt_num = self.curr_level.attempts.len() + 1;
+        let num_tiles_in_row = 15;
+        let start_idx = num_tiles_in_row / 2 - 2;
+        let border_size = 2.;
+        let size = screen_width() / num_tiles_in_row as f32;
+        let border_c = WHITE;
+
+        for (i, (l, p)) in attempt.iter().zip(progress.iter()).enumerate() {
+            let pos = Vec2 {
+                x: (i + start_idx) as f32,
+                y: attempt_num as f32,
+            };
+
+            let (face_c, base_c) = Self::get_tile_colors_from_progress(p);
+            let tile =
+                Tile::new_input_tile(pos, size, border_size, face_c, base_c, border_c, Some(*l));
+
+            attempt_tiles.push(tile);
+        }
+
+        attempt_tiles
+    }
+
+    fn get_tile_colors_from_progress(progress: &Progress) -> (Color, Color) {
+        match progress {
+            Progress::Empty => (WHITE, BLACK),
+            Progress::Absent => (LIGHTGRAY, DARKGRAY),
+            Progress::Present => (YELLOW, GOLD),
+            Progress::Correct => (GREEN, DARKGREEN),
         }
     }
 }
