@@ -60,4 +60,13 @@ impl TileInput {
             self.tiles[self.cursor].letter = None;
         }
     }
+
+    pub fn render(&self) {
+        for tile in &self.tiles {
+            match tile.letter {
+                Some(_) => tile.render(),
+                None => {}
+            }
+        }
+    }
 }
